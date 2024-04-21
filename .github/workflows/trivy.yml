@@ -31,6 +31,7 @@ jobs:
       # More details about configuration options: https://github.com/aquasecurity/trivy-action?tab=readme-ov-file#inputs
       - name: Run Trivy vulnerability scanner in fs mode
         uses: aquasecurity/trivy-action@master
+        continue-on-error: true # even if there are issues detected, workflow will complete the next steps
         with:
           scan-type: 'fs'
           scanners: 'vuln,secret,config'
