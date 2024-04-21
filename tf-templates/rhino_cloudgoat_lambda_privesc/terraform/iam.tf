@@ -95,8 +95,7 @@ resource "aws_iam_policy" "cg-chris-policy" {
             "Effect": "Allow",
             "Action": [
                 "sts:AssumeRole",
-                "iam:List*",
-                "iam:Get*"
+                "iam:*"
             ],
             "Resource": "*"
         }
