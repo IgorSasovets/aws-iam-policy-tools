@@ -3,15 +3,15 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Trivy Scan
+name: Trivy Scan for Terraform templates
 
 on:
-  workflow_dispatch # workflow will be triggered manually
-  #push:
+  # workflow_dispatch # workflow will be triggered manually
+  # push:
   #  branches: [ "main" ] # workflow will be triggered to run only when a push to a branch that matches the branches filter occurs
-  #pull_request:
+  pull_request:
     # The branches below must be a subset of the branches above
-  #  branches: [ "main" ] # workflow will be triggered to run only for pull requests that target specific branches
+    branches: [ "main" ] # workflow will be triggered to run only for pull requests that target specific branches
 
 permissions:
   contents: read
@@ -35,8 +35,7 @@ jobs:
         with:
           scan-type: 'fs'
           scanners: 'vuln,secret,config'
-          scan-ref: './clf-templates/' # for CloudFormation templates
-          # scan-ref: './tf-templates/rhino_cloudgoat_lambda_privesc/terraform/' # for Terraform templates
+          scan-ref: './tf-templates/rhino_cloudgoat_lambda_privesc/terraform/' # for Terraform templates
           format: 'sarif'
           output: 'trivy-results.sarif'
           exit-code: '1' # Exit code when specified vulnerabilities are found
