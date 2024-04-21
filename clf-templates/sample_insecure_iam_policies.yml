@@ -1,0 +1,110 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+
+  # S3 Bucket with Public Read Access (Highly Insecure)
+  MyS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+
+  # IAM Role with Full S3 Access for Lambda (Unnecessary)
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: FullS3Access
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action: s3:*
+                Resource: '*'
+
+  # Lambda Function with overly broad permissions (can access any resource)
+  MyLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: python3.9
+      Handler: index.handler
+      Code:
+        ZipFile: |
+          import json
+          def handler(event, context):
+            return {
+              'statusCode': 200,
+              'body': json.dumps('Hello from Lambda')
+            }
+      Role: !GetAtt LambdaRole.Arn
+
+  # DynamoDB Table with Public Write Access (Highly Insecure)
+  MyDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      TableName: MyTable
+      BillingMode: PAY_PER_REQUEST
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      PublicAccess: READ_WRITE  # Grant public write access (highly insecure)
+
+  # IAM Role with Full DynamoDB Access for API Gateway (Unnecessary)
+  APIGatewayRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: FullDynamoDBAccess
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action: dynamodb:*
+                Resource: '*'
+
+  # API Gateway with overly broad permissions (can access any DynamoDB table)
+  MyAPIGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: MyAPIGateway
+
+  # API Gateway Resource pointing to Lambda
+  MyLambdaResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt MyAPIGateway.RootResourceId
+      PathPart: /mylambda
+
+  # API Gateway Method with overly broad permissions (can invoke any Lambda)
+  MyLambdaMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: POST
+      ResourceId: !Ref MyLambdaResource
+      IntegrationHttpMethod: POST
+      IntegrationType: AWS_PROXY
+      AuthorizationType: NONE  # No authorization (highly insecure)
+      Uri: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${MyLambdaFunction}
+Outputs:
+  S3Bucket:
+    Description: Name of the S3 Bucket
+    Value: !Ref MyS3Bucket
+  APIGatewayInvokeUrl:
+    Description: Invoke URL for the Lambda via API Gateway
+    Value: !Sub https://{MyAPIGateway}.execute-api.${AWS::Region}.amazonaws.com/prod/mylambda
+
