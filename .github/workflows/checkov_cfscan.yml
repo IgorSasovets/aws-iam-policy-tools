@@ -1,0 +1,22 @@
+name: Checkov Scan for CloudFormation templates
+
+on:
+  workflow_dispatch # workflow will be triggered manually
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      # Complete options list can be reviewed here: https://github.com/bridgecrewio/checkov-action?tab=readme-ov-file#example-usage-for-optionsenvironment-variables-in-with-block
+      - name: Test CF templates with Checkov
+        id: checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: clf-templates/
+          framework: cloudformation # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
+          output_format: cli # optional: the output format, one of: cli, json, junitxml, github_failed_only, or sarif. Default: sarif

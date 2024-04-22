@@ -1,0 +1,15 @@
+name: cfn_nag Scan for CloudFormation templates
+
+on:
+  workflow_dispatch # workflow will be triggered manually
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      # Complete options list can be reviewed here: https://github.com/stelligent/cfn_nag/blob/master/github-action/README.md#cfn_nag-github-action
+    - uses: stelligent/cfn_nag@master
+      with:
+        input_path: clf-templates/
+        extra_args: --fail-on-warnings
