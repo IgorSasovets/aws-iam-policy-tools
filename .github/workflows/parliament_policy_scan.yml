@@ -1,0 +1,19 @@
+name: Parliament Scan for IAM policies JSON files
+
+on:
+  workflow_dispatch # workflow will be triggered manually
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      # Complete options list can be reviewed here: https://github.com/duo-labs/parliament/?tab=readme-ov-file#usage
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+          cache: 'pip' # caching pip dependencies
+      - run: |
+          pip install parliament
+          wait
+          parliament --directory iam-policies-json/
