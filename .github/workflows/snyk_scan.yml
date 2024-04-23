@@ -1,0 +1,25 @@
+name: Snyk IaC scan
+
+on:
+  workflow_dispatch # workflow will be triggered manually
+
+jobs:
+ build:
+   runs-on: ubuntu-latest
+   strategy:
+      matrix:
+        node-version: [18.x]
+   steps:
+     - uses: actions/checkout@v2
+     - name: Use Node.js ${{ matrix.node-version }}
+       uses: actions/setup-node@v2
+       with:
+         node-version: ${{ matrix.node-version }}
+     - name: Snyk IaC Test
+       uses: snyk/actions/setup@master
+     - run: snyk iac test      
+       env:
+          # Add your Snyk token to the repository secrets:
+          # 1. How to get Snyk token: https://docs.snyk.io/integrate-with-snyk/snyk-ci-cd-integrations/github-actions-for-snyk-setup-and-checking-for-vulnerabilities#getting-your-snyk-token
+          # 2. How to add a new repository secret: https://docs.github.com/en/codespaces/managing-codespaces-for-your-organization/managing-development-environment-secrets-for-your-repository-or-organization#adding-secrets-for-a-repository
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
