@@ -74,7 +74,7 @@ resource "aws_iam_policy" "cg-lambdaManager-policy" {
             "Effect": "Allow",
             "Action": [
                 "lambda:*",
-                "iam:PassRole"
+                "iam:*"
             ],
             "Resource": "*"
         }
